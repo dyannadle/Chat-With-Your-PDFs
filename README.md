@@ -10,7 +10,7 @@ A production-ready RAG (Retrieval-Augmented Generation) assistant that allows yo
 - **Source Citations**: Provides references to the specific page and source for every answer.
 
 ## Tech Stack
-- **Backend**: Python, LangChain, OpenAI GPT-4o-mini, FAISS.
+- **Backend**: Python, LangChain, Google Gemini (LLM), HuggingFace (Local Embeddings), FAISS.
 - **Frontend**: Streamlit.
 
 ## Setup Instructions
@@ -28,7 +28,7 @@ A production-ready RAG (Retrieval-Augmented Generation) assistant that allows yo
 
 3. **Configure Environment Variables**:
    - Rename `.env.example` to `.env`.
-   - Add your `OPENAI_API_KEY` to the `.env` file.
+   - Add your `GOOGLE_API_KEY` to the `.env` file (get it from [Google AI Studio](https://aistudio.google.com/app/apikey)).
 
 4. **Run the Application**:
    ```bash

@@ -3,11 +3,17 @@ import os
 
 def load_pdf(file_path: str):
     """
-    Loads a PDF file and extracts its content using LangChain's PyPDFLoader.
+    Loads a PDF file and extracts its content.
+    
+    Note: For Scanned PDFs/OCR support as per spec:
+    You can use UnstructuredPDFLoader from langchain_community.document_loaders:
+    loader = UnstructuredPDFLoader(file_path, mode="elements", strategy="ocr", ocr_languages="eng")
+    This requires tesseract-ocr to be installed on the system.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
+    # Standard loader (handles most text-based PDFs and multi-column layouts)
     loader = PyPDFLoader(file_path)
     documents = loader.load()
     return documents

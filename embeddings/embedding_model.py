@@ -1,18 +1,18 @@
-from langchain_openai import OpenAIEmbeddings
-from dotenv import load_dotenv
+from langchain_community.embeddings import HuggingFaceEmbeddings
 import os
-
-load_dotenv()
 
 def get_embeddings_model():
     """
-    Initializes and returns the OpenAI embeddings model.
+    Initializes and returns the HuggingFace local embeddings model.
+    This runs locally and does not require an API key.
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        # Fallback or error based on project requirements. 
-        # Spec asks for OpenAI/HuggingFace. Defaulting to OpenAI.
-        pass 
-        
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    model_name = "sentence-transformers/all-MiniLM-L6-v2"
+    model_kwargs = {'device': 'cpu'}
+    encode_kwargs = {'normalize_embeddings': False}
+    
+    embeddings = HuggingFaceEmbeddings(
+        model_name=model_name,
+        model_kwargs=model_kwargs,
+        encode_kwargs=encode_kwargs
+    )
     return embeddings
