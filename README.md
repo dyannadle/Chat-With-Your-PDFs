@@ -5,12 +5,23 @@ A production-ready, **100% free**, and **locally hosted** AI assistant that allo
 ---
 
 ## 🚀 Key Features
+
+### Core RAG Flow
 - **Total Privacy**: Your documents and chats stay on your machine.
 - **Zero Cost**: No API keys or subscriptions required.
 - **Advanced RAG**: Uses Retrieval-Augmented Generation for accurate, document-based answers.
 - **Conversational Memory**: Remembers your previous questions for a natural interaction.
 - **Source Citations**: Clearly labels which document and page each answer came from.
-- **Modular Code**: Clean, annotated, and easy-to-extend architecture.
+
+### Advanced Enhancements (Phase 2)
+- **Hybrid Search**: Combines semantic (vector) search with keyword (BM25) search for pinpoint accuracy.
+- **OCR Support**: Automatically extract text from scanned PDFs using Tesseract.
+- **Table Extraction**: Precise extraction of tabular data using `pdfplumber`.
+- **Document Summarization**: Instantly generate a concise overview of your uploaded documents.
+- **Chat Export to PDF**: Download your entire conversation transcript as a professional PDF.
+- **Semantic Dashboard**: Explore the exact document chunks the AI retrieved for its answer.
+- **Passage Highlighting**: Visual highlighting of retrieved text within the UI for better context.
+- **Basic Security**: Built-in password protection (`default: admin123`) and 20MB file size limits.
 
 ---
 
@@ -19,6 +30,7 @@ A production-ready, **100% free**, and **locally hosted** AI assistant that allo
 - **LLM**: [Ollama](https://ollama.com/) (running Llama 3).
 - **Embeddings**: [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) (Local).
 - **Vector Store**: [FAISS](https://github.com/facebookresearch/faiss) for local persistence.
+- **OCR**: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract).
 - **UI**: [Streamlit](https://streamlit.io/).
 
 ---
@@ -31,7 +43,7 @@ chat_with_pdfs/
 ├── requirements.txt      # Python dependencies
 │
 ├── loaders/
-│   └── pdf_loader.py     # Logic for PDF text extraction
+│   └── pdf_loader.py     # OCR & Table-aware PDF extraction
 │
 ├── embeddings/
 │   └── embedding_model.py # Local HuggingFace embedding setup
@@ -40,10 +52,14 @@ chat_with_pdfs/
 │   └── vectordb.py       # FAISS database creation and loading
 │
 ├── chains/
-│   └── rag_chain.py       # Conversational RAG chain orchestration
+│   └── rag_chain.py       # Hybrid RAG chain & Summarization logic
 │
 ├── utils/
-│   └── text_splitter.py   # Text chunking strategies
+│   ├── text_splitter.py   # Text chunking strategies
+│   └── pdf_export.py     # Chat-to-PDF export utility
+│
+├── .streamlit/
+│   └── config.toml       # Streamlit security & theme config
 │
 └── data/
     └── uploaded_docs/    # Directory for temporary PDF storage
@@ -54,18 +70,19 @@ chat_with_pdfs/
 ## 📖 How to Run
 
 ### 1. Requirements
-Ensure you have **Python 3.10+** installed.
+- **Python 3.10+**
+- **Ollama** installed with `llama3` pulled.
+- **Tesseract OCR** (Optional: only needed for scanned PDFs).
 
 ### 2. Install Ollama
-Download and install Ollama from [ollama.com](https://ollama.com/). Once installed, open your terminal and run:
+Download and install [Ollama](https://ollama.com/). Then run:
 ```bash
 ollama pull llama3
 ```
 
 ### 3. Setup the Project
-Clone the repository and install the dependencies:
 ```bash
-# Clone (if applicable) or navigate to the directory
+# Clone the repository
 cd "Chat With Your PDFs"
 
 # Install Python packages
@@ -73,24 +90,15 @@ pip install -r requirements.txt
 ```
 
 ### 4. Launch the App
-Run the Streamlit server:
 ```bash
 streamlit run app.py
 ```
-Your browser should automatically open to the app. Upload your PDFs, click **Process**, and start chatting!
+**Default Password**: `admin123`
 
 ---
 
 ## 📝 Code Annotations
-Every file in this project is exhaustively annotated line-by-line to explain the logic and flow of the RAG system.
-
----
-
-## 🤝 Contributing
-Feel free to fork this project and add features like:
-- Scanned PDF support (OCR).
-- Chat exporting to PDF.
-- Support for other file types (.docx, .txt).
+Every single line of code in this project is exhaustively annotated to explain the underlying logic, from vector embeddings to hybrid retrieval.
 
 ---
 
