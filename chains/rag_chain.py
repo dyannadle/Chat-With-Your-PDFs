@@ -1,26 +1,21 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
+from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-from langchain.prompts import PromptTemplate
-
 def get_rag_chain(vectorstore):
     """
-    Sets up the ConversationalRetrievalChain with memory and Google Gemini LLM.
+    Sets up the ConversationalRetrievalChain with memory and Local Ollama LLM.
+    Ensures a 100% free and private setup.
     """
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise ValueError("GOOGLE_API_KEY not found in environment variables.")
-        
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
-        google_api_key=api_key,
+    # Using llama3 via Ollama. Make sure you've run 'ollama pull llama3'
+    llm = ChatOllama(
+        model="llama3",
         temperature=0,
-        convert_system_message_to_human=True
     )
     
     memory = ConversationBufferMemory(

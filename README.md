@@ -10,25 +10,33 @@ A production-ready RAG (Retrieval-Augmented Generation) assistant that allows yo
 - **Source Citations**: Provides references to the specific page and source for every answer.
 
 ## Tech Stack
-- **Backend**: Python, LangChain, Google Gemini (LLM), HuggingFace (Local Embeddings), FAISS.
+- **Backend**: Python, LangChain, Ollama (Local LLM), HuggingFace (Local Embeddings), FAISS.
 - **Frontend**: Streamlit.
 
 ## Setup Instructions
 
-1. **Clone the repository**:
+1. **Install Ollama**:
+   - Download and install [Ollama](https://ollama.com/).
+   - Pull the Llama 3 model:
+     ```bash
+     ollama pull llama3
+     ```
+
+2. **Clone the repository**:
    ```bash
    git clone <repo-url>
    cd "Chat With Your PDFs"
    ```
 
-2. **Install dependencies**:
+3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Configure Environment Variables**:
-   - Rename `.env.example` to `.env`.
-   - Add your `GOOGLE_API_KEY` to the `.env` file (get it from [Google AI Studio](https://aistudio.google.com/app/apikey)).
+4. **Run the Application**:
+   ```bash
+   streamlit run app.py
+   ```
 
 4. **Run the Application**:
    ```bash
