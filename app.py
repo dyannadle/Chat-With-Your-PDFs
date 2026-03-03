@@ -1,6 +1,6 @@
 import streamlit as st  # Import Streamlit for the web application interface
 import os  # Import os for file and directory operations
-from dotenv import load_dotenv  # Import load_dotenv to read environment variables from .env file
+from dotenv import load_dotenv, set_key  # Import dotenv utilities for persistent config
 from loaders.pdf_loader import load_multiple_pdfs  # Import custom PDF loading function
 from utils.text_splitter import get_text_chunks  # Import custom text splitting utility
 from embeddings.embedding_model import get_embeddings_model  # Import custom embedding model initializer
@@ -14,7 +14,9 @@ load_dotenv()
 def check_password():  # Define a simple authentication function for local privacy
     """Returns `True` if the user had the correct password."""
     def password_entered():
-        if st.session_state["password"] == st.secrets.get("PASSWORD", "admin123"): # Default password if not in secrets
+        # Retrieve the current password from environment variables, defaulting to 'admin123'
+        correct_password = os.getenv("APP_PASSWORD", "admin123")
+        if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # don't store password
         else:
@@ -127,6 +129,17 @@ def main():  # Define the main function for the Streamlit app
                 # Re-initialize the chain to reset its internal memory while keeping the retriever
                 st.session_state.rag_chain = get_rag_chain(st.session_state.rag_chain.retriever.vectorstore)
             st.info("Chat history cleared.")  # Notify the user that history is reset
+            
+        st.markdown("---")
+        st.header("🔐 Security Settings")  # Add a section for security
+        new_password = st.text_input("Change App Password", type="password")
+        if st.button("Update Password"):
+            if new_password:
+                # Persistently update the .env file with the new password
+                set_key(".env", "APP_PASSWORD", new_password)
+                st.success("Password updated! Please restart the app for changes to take effect.")
+            else:
+                st.warning("Please enter a valid password.")
 
     # Display document summary if available
     if "summary" in st.session_state:
