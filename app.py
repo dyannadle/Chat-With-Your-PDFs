@@ -173,8 +173,25 @@ def main():  # Define the main function for the Streamlit app
                     "content": answer, 
                     "sources": sources
                 })
+                # Save the most recent retrieval results for the Semantic Dashboard
+                st.session_state.last_retrieval = sources
         else:
             st.info("Please upload and process documents first.")  # Inform user if they skip processing
+
+    # ---------------------------------------------------------
+    # 🔍 Semantic Search Dashboard (Requirement 7.0/4.4)
+    # ---------------------------------------------------------
+    if "last_retrieval" in st.session_state:
+        st.markdown("---")
+        st.subheader("🔍 Semantic Search Dashboard")
+        st.markdown("Explore the specific document chunks the AI used to generate the last answer.")
+        
+        cols = st.columns(2)  # Create two columns for the dashboard
+        for i, src in enumerate(st.session_state.last_retrieval):
+            with cols[i % 2]:  # Alternating columns
+                st.info(f"📍 **Chunk {i+1}** | {src['source']} (Page {src['page']})")
+                st.caption(f"_{src['content']}_")
+                st.markdown("---")
 
 if __name__ == "__main__":  # Ensure the main function only runs if the script is executed directly
     main()

@@ -1,0 +1,3 @@
+[server]
+# Max upload size in MB (Requirement: 20MB)
+maxUploadSize = 20

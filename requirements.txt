@@ -9,3 +9,6 @@ python-dotenv
 tiktoken
 fpdf2
 rank_bm25
+pytesseract
+pdf2image
+pdfplumber
