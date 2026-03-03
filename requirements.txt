@@ -7,3 +7,5 @@ pypdf
 streamlit
 python-dotenv
 tiktoken
+fpdf2
+rank_bm25

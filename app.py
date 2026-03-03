@@ -5,13 +5,36 @@ from loaders.pdf_loader import load_multiple_pdfs  # Import custom PDF loading f
 from utils.text_splitter import get_text_chunks  # Import custom text splitting utility
 from embeddings.embedding_model import get_embeddings_model  # Import custom embedding model initializer
 from vectorstore.vectordb import create_vectorstore, save_vectorstore, load_vectorstore  # Import vector store management functions
-from chains.rag_chain import get_rag_chain, process_query  # Import RAG orchestration and query processing functions
+from chains.rag_chain import get_rag_chain, process_query, summarize_documents  # Import RAG and summarization functions
+from utils.pdf_export import export_chat_to_pdf  # Import the chat export utility
 
 # Load environment variables (like API keys, if any were used)
 load_dotenv()
 
+def check_password():  # Define a simple authentication function for local privacy
+    """Returns `True` if the user had the correct password."""
+    def password_entered():
+        if st.session_state["password"] == st.secrets.get("PASSWORD", "admin123"): # Default password if not in secrets
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # don't store password
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.text_input("Password", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.text_input("Password", type="password", on_change=password_entered, key="password")
+        st.error("😕 Password incorrect")
+        return False
+    else:
+        return True
+
 def main():  # Define the main function for the Streamlit app
-    st.set_page_config(page_title="Chat With Your PDFs", page_icon="📄", layout="wide")  # Configure the browser tab title, icon, and layout
+    if not check_password():  # Only proceed if the password is correct
+        st.stop()
+        
+    st.set_page_config(page_title="Chat With Your PDFs", page_icon="📄", layout="wide")
     
     # Inject custom CSS for a premium look and feel
     st.markdown("""
@@ -27,7 +50,13 @@ def main():  # Define the main function for the Streamlit app
             color: white;  /* Use white text for buttons */
         }
         .stChatInputContainer {
-            padding: 20px;  /* Add padding around the chat input area */
+            padding: 20px;
+        }
+        .highlight {
+            background-color: #fff3cd; /* Light yellow background for highlighting */
+            border-left: 5px solid #ffc107; /* Thicker yellow left border */
+            padding: 10px;
+            border-radius: 4px;
         }
         </style>
         """, unsafe_allow_html=True)  # Allow HTML in markdown to apply the CSS
@@ -63,10 +92,33 @@ def main():  # Define the main function for the Streamlit app
                     save_vectorstore(vectorstore)  # Step 5: Persist the vector store to local storage
                     
                     # Step 6: Initialize the conversational retrieval chain and save it to session state
-                    st.session_state.rag_chain = get_rag_chain(vectorstore)
+                    st.session_state.rag_chain = get_rag_chain(vectorstore, chunks=chunks)
+                    st.session_state.raw_docs = raw_docs  # Save raw docs for summarization
                     st.success("Documents processed successfully!")  # Show a success message
             else:
                 st.warning("Please upload at least one PDF.")  # Warn if the button was clicked without files
+        
+        if st.button("Summarize Documents"):  # Trigger document summarization
+            if "raw_docs" in st.session_state:
+                with st.spinner("Generating summary..."):
+                    st.session_state.summary = summarize_documents(st.session_state.raw_docs)
+                    st.success("Summary generated!")
+            else:
+                st.warning("Please process documents first.")
+
+        if st.button("Export Chat to PDF"):  # Trigger chat export
+            if "messages" in st.session_state and st.session_state.messages:
+                with st.spinner("Generating PDF..."):
+                    export_path = export_chat_to_pdf(st.session_state.messages)
+                    with open(export_path, "rb") as f:
+                        st.download_button(
+                            label="Download PDF",
+                            data=f,
+                            file_name="chat_export.pdf",
+                            mime="application/pdf"
+                        )
+            else:
+                st.warning("No chat history to export.")
         
         if st.button("Clear Chat Memory"):  # Trigger chat history clearing
             if "messages" in st.session_state:  # Check if messages exist in session state
@@ -75,6 +127,11 @@ def main():  # Define the main function for the Streamlit app
                 # Re-initialize the chain to reset its internal memory while keeping the retriever
                 st.session_state.rag_chain = get_rag_chain(st.session_state.rag_chain.retriever.vectorstore)
             st.info("Chat history cleared.")  # Notify the user that history is reset
+
+    # Display document summary if available
+    if "summary" in st.session_state:
+        with st.expander("📄 Document Summary", expanded=True):
+            st.write(st.session_state.summary)
 
     # Initialize chat history in session state if it doesn't already exist
     if "messages" not in st.session_state:
@@ -108,7 +165,7 @@ def main():  # Define the main function for the Streamlit app
                     with st.expander("View Sources"):  # Show sources in an expander
                         for src in sources:  # Loop through sources
                             st.markdown(f"**Source:** {src['source']} (Page {src['page']})")  # Cite source
-                            st.caption(src["content"])  # Show snippet
+                            st.markdown(f'<div class="highlight">{src["content"]}</div>', unsafe_allow_html=True) # Highlighted content
                 
                 # Add the assistant's response and sources to the chat history
                 st.session_state.messages.append({
