@@ -46,7 +46,7 @@ def get_llm():
     # Fallback to Groq
     api_key = os.getenv("GROQ_API_KEY")
     if api_key and api_key != "your_groq_api_key_here":
-        return ChatGroq(model="llama3-8b-8192", groq_api_key=api_key)
+        return ChatGroq(model="llama-3.1-8b-instant", groq_api_key=api_key)
     
     # Final fallback: Raise an error if no LLM is configured
     raise ValueError(
