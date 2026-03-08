@@ -21,6 +21,10 @@ def main():  # Define the main function for the Streamlit app
         #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility: hidden;}
+        [data-testid="stStatusWidget"] {visibility: hidden;}
+        .stAppToolbar {visibility: hidden;}
+        [data-testid="stConnectionStatus"] {visibility: hidden;}
+        [data-testid="stAppDeployButton"] {visibility: hidden;}
         .main {
             background-color: #f8f9fa;  /* Set a light grey background for the main area */
         }
