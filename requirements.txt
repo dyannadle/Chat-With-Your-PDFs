@@ -1,6 +1,8 @@
 langchain
 langchain-community
 langchain-ollama
+langchain-groq
+langchain-huggingface
 sentence-transformers
 faiss-cpu
 pypdf
@@ -10,5 +12,5 @@ tiktoken
 fpdf2
 rank_bm25
 pytesseract
-pdf2image
+pymupdf
 pdfplumber

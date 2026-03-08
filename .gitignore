@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Secrets
+.env
+
+# Streamlit
+.streamlit/config.toml
+
+# Project specific
+data/uploaded_docs/*
+!data/uploaded_docs/.gitkeep
+faiss_index/
+chat_export.pdf
+error*.txt
+trace.txt
+capture.py
+debug_*.py
+dummy_test.pdf
+verify_loader.py
+make_pdf.py
