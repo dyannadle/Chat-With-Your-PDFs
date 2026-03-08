@@ -101,7 +101,10 @@ def main():  # Define the main function for the Streamlit app
                     except ValueError as e:
                         st.error(str(e))
                     except Exception as e:
-                        st.error(f"An error occurred: {e}")
+                        if "429" in str(e) or "rate_limit_exceeded" in str(e):
+                            st.warning("⏳ Groq Rate Limit Reached. Please wait about 10 seconds before clicking again.")
+                        else:
+                            st.error(f"An error occurred: {e}")
             else:
                 st.warning("Please upload at least one PDF.")  # Warn if the button was clicked without files
         
@@ -114,7 +117,10 @@ def main():  # Define the main function for the Streamlit app
                     except ValueError as e:
                         st.error(str(e))
                     except Exception as e:
-                        st.error(f"An error occurred: {e}")
+                        if "429" in str(e) or "rate_limit_exceeded" in str(e):
+                            st.warning("⏳ Groq Rate Limit Reached. Please wait about 10 seconds before trying again.")
+                        else:
+                            st.error(f"An error occurred: {e}")
             else:
                 st.warning("Please process documents first.")
 
