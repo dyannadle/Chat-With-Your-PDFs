@@ -115,7 +115,7 @@ def summarize_documents(documents):  # Define a function to generate a summary o
     Focus on the main topics, purpose, and key takeaways.
     
     Content:
-    {combined_text[:5000]}
+    {combined_text[:3000]}
     
     Summary:
     """

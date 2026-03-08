@@ -200,7 +200,10 @@ def main():  # Define the main function for the Streamlit app
                     # Save the most recent retrieval results for the Semantic Dashboard
                     st.session_state.last_retrieval = sources
                 except Exception as e:
-                    st.error(f"Error processing query: {e}")
+                    if "429" in str(e) or "rate_limit_exceeded" in str(e):
+                        st.warning("⏳ Groq Rate Limit Reached. Please wait a moment and try your question again.")
+                    else:
+                        st.error(f"Error processing query: {e}")
         else:
             st.info("Please upload and process documents first.")  # Inform user if they skip processing
 
