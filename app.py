@@ -11,36 +11,16 @@ from utils.pdf_export import export_chat_to_pdf  # Import the chat export utilit
 # Load environment variables (like API keys, if any were used)
 load_dotenv()
 
-def check_password():  # Define a simple authentication function for local privacy
-    """Returns `True` if the user had the correct password."""
-    def password_entered():
-        # Retrieve the current password from environment variables, defaulting to 'admin123'
-        correct_password = os.getenv("APP_PASSWORD", "admin123")
-        if st.session_state["password"] == correct_password:
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store password
-        else:
-            st.session_state["password_correct"] = False
-
-    if "password_correct" not in st.session_state:
-        st.text_input("Password", type="password", on_change=password_entered, key="password")
-        return False
-    elif not st.session_state["password_correct"]:
-        st.text_input("Password", type="password", on_change=password_entered, key="password")
-        st.error("😕 Password incorrect")
-        return False
-    else:
-        return True
 
 def main():  # Define the main function for the Streamlit app
-    if not check_password():  # Only proceed if the password is correct
-        st.stop()
-        
     st.set_page_config(page_title="Chat With Your PDFs", page_icon="📄", layout="wide")
     
-    # Inject custom CSS for a premium look and feel
+    # Inject custom CSS for a premium look and feel and to hide Streamlit Cloud UI elements
     st.markdown("""
         <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
         .main {
             background-color: #f8f9fa;  /* Set a light grey background for the main area */
         }
@@ -146,16 +126,6 @@ def main():  # Define the main function for the Streamlit app
                 st.session_state.rag_chain = get_rag_chain(st.session_state.rag_chain.retriever.vectorstore)
             st.info("Chat history cleared.")  # Notify the user that history is reset
             
-        st.markdown("---")
-        st.header("🔐 Security Settings")  # Add a section for security
-        new_password = st.text_input("Change App Password", type="password")
-        if st.button("Update Password"):
-            if new_password:
-                # Persistently update the .env file with the new password
-                set_key(".env", "APP_PASSWORD", new_password)
-                st.success("Password updated! Please restart the app for changes to take effect.")
-            else:
-                st.warning("Please enter a valid password.")
 
     # Display document summary if available
     if "summary" in st.session_state:

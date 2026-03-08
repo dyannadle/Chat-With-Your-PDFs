@@ -21,7 +21,7 @@ A production-ready, **100% free**, and **locally hosted** AI assistant that allo
 - **Chat Export to PDF**: Download your entire conversation transcript as a professional PDF.
 - **Semantic Dashboard**: Explore the exact document chunks the AI retrieved for its answer.
 - **Passage Highlighting**: Visual highlighting of retrieved text within the UI for better context.
-- **Basic Security**: Built-in password protection (`default: admin123`) and 20MB file size limits.
+- **File Limits**: Supports up to 200MB file uploads for processing large documents.
 
 ---
 
@@ -93,7 +93,7 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-**Default Password**: `admin123`
+**Usage**: No password required for direct access.
 
 ---
 
