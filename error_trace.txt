@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "D:\Chat With Your PDFs\capture.py", line 3, in <module>
+    from chains.rag_chain import get_rag_chain
+  File "D:\Chat With Your PDFs\chains\rag_chain.py", line 3, in <module>
+    from langchain.chains import ConversationalRetrievalChain  # Import the conversational retrieval chain class
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain\chains\__init__.py", line 93, in __getattr__
+    return importer(name)
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain\_api\module_import.py", line 69, in import_by_name
+    module = importlib.import_module(new_module)
+  File "C:\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain\chains\conversational_retrieval\base.py", line 26, in <module>
+    from langchain.chains.base import Chain
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain\chains\base.py", line 21, in <module>
+    from langchain_core.memory import BaseMemory
+ModuleNotFoundError: No module named 'langchain_core.memory'

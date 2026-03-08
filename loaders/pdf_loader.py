@@ -1,10 +1,11 @@
 from langchain_community.document_loaders import PyPDFLoader  # Standard PDF loader
-from langchain.schema import Document  # Document schema for LangChain
+from langchain_core.documents import Document  # Document schema for LangChain
 import pdfplumber  # Library for precise table and text extraction
 import os  # Standard OS library
 try:
     import pytesseract  # OCR library
-    from pdf2image import convert_from_path  # PDF to image conversion for OCR
+    import fitz  # PyMuPDF for PDF to image conversion
+    from PIL import Image # For handling image data
     OCR_AVAILABLE = True
 except ImportError:
     OCR_AVAILABLE = False
@@ -49,13 +50,19 @@ def load_pdf_with_extras(file_path: str):  # Enhanced loader function
     # This handles scanned PDFs as per requirement 4.1
     if OCR_AVAILABLE and (not documents or sum([len(d.page_content) for d in documents]) < 50):
         print(f"Running OCR on {file_path}...")
-        images = convert_from_path(file_path) # Convert PDF pages to images
-        for i, image in enumerate(images):
-            text = pytesseract.image_to_string(image) # Run OCR on each image
-            documents.append(Document(
-                page_content=text, 
-                metadata={"source": file_path, "page": i+1, "type": "ocr"}
-            ))
+        try:
+            doc = fitz.open(file_path) # Open PDF with PyMuPDF
+            for i, page in enumerate(doc):
+                pix = page.get_pixmap() # Render page to an image
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                text = pytesseract.image_to_string(img) # Run OCR on the image
+                documents.append(Document(
+                    page_content=text, 
+                    metadata={"source": file_path, "page": i+1, "type": "ocr"}
+                ))
+            doc.close()
+        except Exception as ocr_err:
+            print(f"OCR failed for {file_path}: {ocr_err}")
 
     return documents  # Return all consolidated text/table chunks
 

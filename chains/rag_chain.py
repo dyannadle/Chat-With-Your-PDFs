@@ -1,10 +1,15 @@
-from langchain_ollama import ChatOllama  # Import the Ollama chat model for local execution
+from langchain_community.chat_models import ChatOllama  # Import the Ollama chat model for local execution
+from langchain_groq import ChatGroq  # Fallback LLM
 from langchain.chains import ConversationalRetrievalChain  # Import the conversational retrieval chain class
-from langchain.memory import ConversationBufferMemory  # Import the memory handler for chat history
-from langchain.prompts import PromptTemplate  # Import the template class for custom prompt engineering
-from langchain.retrievers import BM25Retriever, EnsembleRetriever  # Import retrievers for hybrid search
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_community.vectorstores import FAISS # In case needed, but already in vectordb
+from langchain.memory import ConversationBufferMemory
+from langchain_core.prompts import PromptTemplate  # Import the template class for custom prompt engineering
+from langchain_community.retrievers import BM25Retriever
+from langchain.retrievers import EnsembleRetriever  # Import retrievers for hybrid search
 from dotenv import load_dotenv  # Import utility to load environment variables
 import os  # Import os for file operations
+import requests # Need this to check if Ollama is running
 
 # Initialize environment variables from the .env file
 load_dotenv()
@@ -28,13 +33,33 @@ def get_hybrid_retriever(chunks, vectorstore):  # Define a function to create a 
     
     return ensemble_retriever
 
+def get_llm():
+    """Returns Ollama if available, else falls back to Gemini."""
+    try:
+        # Check if Ollama is running
+        response = requests.get("http://localhost:11434/api/tags", timeout=1)
+        if response.status_code == 200:
+            return ChatOllama(model="llama3", temperature=0)
+    except:
+        pass
+    
+    # Fallback to Groq
+    api_key = os.getenv("GROQ_API_KEY")
+    if api_key and api_key != "your_groq_api_key_here":
+        return ChatGroq(model="llama3-8b-8192", groq_api_key=api_key)
+    
+    # Final fallback: Raise an error if no LLM is configured
+    raise ValueError(
+        "No LLM available. Please ensure Ollama is running locally, or provide a valid GROQ_API_KEY in the .env file."
+    )
+
 def get_rag_chain(vectorstore, chunks=None):  # Update the chain to support optional hybrid retrieval
     """
     Sets up the ConversationalRetrievalChain with memory and LLM.
     Supports Hybrid Search if chunks are provided.
     """
-    # Initialize the local LLM via Ollama
-    llm = ChatOllama(model="llama3", temperature=0)
+    # Initialize the LLM (Ollama or Gemini)
+    llm = get_llm()
     
     # Initialize conversational memory
     memory = ConversationBufferMemory(
@@ -77,8 +102,8 @@ def summarize_documents(documents):  # Define a function to generate a summary o
     """
     Generates a concise summary of the provided list of Document objects.
     """
-    # Initialize a local LLM specifically for summarization tasks
-    llm = ChatOllama(model="llama3", temperature=0)
+    # Initialize the LLM specifically for summarization tasks
+    llm = get_llm()
     
     # Combine the content of the first few documents/pages to avoid context window issues
     # We take the first 5000 characters as a representative sample for the summary

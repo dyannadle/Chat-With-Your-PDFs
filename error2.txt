@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "D:\Chat With Your PDFs\debug_import.py", line 3, in <module>
+    from chains.rag_chain import get_rag_chain
+  File "D:\Chat With Your PDFs\chains\rag_chain.py", line 1, in <module>
+    from langchain_ollama import ChatOllama  # Import the Ollama chat model for local execution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain_ollama\__init__.py", line 19, in <module>
+    from langchain_ollama.chat_models import ChatOllama
+  File "C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain_ollama\chat_models.py", line 57, in <module>
+    from langchain_core.messages import (
+    ...<9 lines>...
+    )
+ImportError: cannot import name 'is_data_content_block' from 'langchain_core.messages' (C:\Users\Deepak Yannadle\AppData\Roaming\Python\Python313\site-packages\langchain_core\messages\__init__.py)

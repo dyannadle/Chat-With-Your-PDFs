@@ -87,24 +87,34 @@ def main():  # Define the main function for the Streamlit app
                         file_paths.append(file_path)  # Add the path to our list
                     
                     # Core RAG Pipeline execution
-                    raw_docs = load_multiple_pdfs(file_paths)  # Step 1: Extract text and metadata from PDFs
-                    chunks = get_text_chunks(raw_docs)  # Step 2: Split the text into smaller, manageable chunks
-                    embeddings = get_embeddings_model()  # Step 3: Initialize the local embedding model
-                    vectorstore = create_vectorstore(chunks, embeddings)  # Step 4: Create a FAISS vector store from chunks
-                    save_vectorstore(vectorstore)  # Step 5: Persist the vector store to local storage
-                    
-                    # Step 6: Initialize the conversational retrieval chain and save it to session state
-                    st.session_state.rag_chain = get_rag_chain(vectorstore, chunks=chunks)
-                    st.session_state.raw_docs = raw_docs  # Save raw docs for summarization
-                    st.success("Documents processed successfully!")  # Show a success message
+                    try:
+                        raw_docs = load_multiple_pdfs(file_paths)  # Step 1: Extract text and metadata from PDFs
+                        chunks = get_text_chunks(raw_docs)  # Step 2: Split the text into smaller, manageable chunks
+                        embeddings = get_embeddings_model()  # Step 3: Initialize the local embedding model
+                        vectorstore = create_vectorstore(chunks, embeddings)  # Step 4: Create a FAISS vector store from chunks
+                        save_vectorstore(vectorstore)  # Step 5: Persist the vector store to local storage
+                        
+                        # Step 6: Initialize the conversational retrieval chain and save it to session state
+                        st.session_state.rag_chain = get_rag_chain(vectorstore, chunks=chunks)
+                        st.session_state.raw_docs = raw_docs  # Save raw docs for summarization
+                        st.success("Documents processed successfully!")  # Show a success message
+                    except ValueError as e:
+                        st.error(str(e))
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
             else:
                 st.warning("Please upload at least one PDF.")  # Warn if the button was clicked without files
         
         if st.button("Summarize Documents"):  # Trigger document summarization
             if "raw_docs" in st.session_state:
                 with st.spinner("Generating summary..."):
-                    st.session_state.summary = summarize_documents(st.session_state.raw_docs)
-                    st.success("Summary generated!")
+                    try:
+                        st.session_state.summary = summarize_documents(st.session_state.raw_docs)
+                        st.success("Summary generated!")
+                    except ValueError as e:
+                        st.error(str(e))
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
             else:
                 st.warning("Please process documents first.")
 
@@ -170,24 +180,27 @@ def main():  # Define the main function for the Streamlit app
         if "rag_chain" in st.session_state:  # Check if documents have been processed
             with st.spinner("Thinking..."):  # Show a "Thinking..." spinner while the AI processes
                 # Process the query through the RAG chain to get the answer and sources
-                answer, sources = process_query(st.session_state.rag_chain, prompt)
-                
-                # Display the assistant's response in a new chat bubble
-                with st.chat_message("assistant"):
-                    st.markdown(answer)  # Display the AI's answer
-                    with st.expander("View Sources"):  # Show sources in an expander
-                        for src in sources:  # Loop through sources
-                            st.markdown(f"**Source:** {src['source']} (Page {src['page']})")  # Cite source
-                            st.markdown(f'<div class="highlight">{src["content"]}</div>', unsafe_allow_html=True) # Highlighted content
-                
-                # Add the assistant's response and sources to the chat history
-                st.session_state.messages.append({
-                    "role": "assistant", 
-                    "content": answer, 
-                    "sources": sources
-                })
-                # Save the most recent retrieval results for the Semantic Dashboard
-                st.session_state.last_retrieval = sources
+                try:
+                    answer, sources = process_query(st.session_state.rag_chain, prompt)
+                    
+                    # Display the assistant's response in a new chat bubble
+                    with st.chat_message("assistant"):
+                        st.markdown(answer)  # Display the AI's answer
+                        with st.expander("View Sources"):  # Show sources in an expander
+                            for src in sources:  # Loop through sources
+                                st.markdown(f"**Source:** {src['source']} (Page {src['page']})")  # Cite source
+                                st.markdown(f'<div class="highlight">{src["content"]}</div>', unsafe_allow_html=True) # Highlighted content
+                    
+                    # Add the assistant's response and sources to the chat history
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": answer, 
+                        "sources": sources
+                    })
+                    # Save the most recent retrieval results for the Semantic Dashboard
+                    st.session_state.last_retrieval = sources
+                except Exception as e:
+                    st.error(f"Error processing query: {e}")
         else:
             st.info("Please upload and process documents first.")  # Inform user if they skip processing
 
